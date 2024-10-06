@@ -6,6 +6,8 @@ from bson import ObjectId
 from datetime import datetime
 from app.models.quiz_session import FormattedQuizQuestion, QuizSession, QuizSessionCreate, QuizQuestion, QuizSubmission, UserAnswer
 from app.database.mongodb import get_database
+from app.services.leaderboard_service import LeaderboardService
+from app.models.user import User
 
 class QuestionService:
     _questions: List[Dict] = []
@@ -109,7 +111,7 @@ class QuestionService:
             return None
 
     @classmethod
-    async def submit_quiz(cls, submission: QuizSubmission) -> QuizSession:
+    async def submit_quiz(cls, submission: QuizSubmission, user: User) -> QuizSession:
         db = await get_database()
         session = await cls.get_quiz_session(submission.session_id)
         
@@ -128,6 +130,15 @@ class QuestionService:
         await db.quiz_sessions.update_one(
             {"_id": ObjectId(session.id)},
             {"$set": {"end_time": session.end_time, "score": session.score}}
+        )
+
+        # Update leaderboard
+        logging.info(f"Calling update_leaderboard for user {user.id}, category {session.questions[0].category}, score {score}")
+        await LeaderboardService.update_leaderboard(
+            user_id=str(user.id),
+            username=user.username,
+            category=session.questions[0].category,  # Assuming all questions in a session are from the same category
+            score=score
         )
 
         return session

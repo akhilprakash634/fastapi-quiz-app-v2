@@ -18,7 +18,7 @@ async def start_quiz(quiz_create: QuizSessionCreate, current_user: User = Depend
 @router.post("/submit", response_model=QuizSession)
 async def submit_quiz(submission: QuizSubmission, current_user: User = Depends(get_current_user)):
     try:
-        return await QuestionService.submit_quiz(submission)
+        return await QuestionService.submit_quiz(submission, current_user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
