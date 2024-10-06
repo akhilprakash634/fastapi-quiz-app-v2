@@ -20,6 +20,7 @@ class User(BaseModel):
     email: EmailStr
     phone_number: Optional[str] = None
     age: int
+    referral_code: Optional[str] = None
 
 class Token(BaseModel):
     access_token: str

@@ -2,8 +2,10 @@ import logging
 from fastapi import FastAPI
 from app.core.config import settings
 from app.database.mongodb import connect_to_mongo, close_mongo_connection, get_database
-from app.routers import categories, auth, questions, quiz
+from app.routers import categories, auth, questions, quiz, leaderboard, invites
 from app.services.question_service import QuestionService
+
+
 
 
 app = FastAPI(title=settings.APP_NAME)
@@ -15,6 +17,8 @@ app.include_router(categories.router)
 app.include_router(questions.router)
 app.include_router(auth.router)
 app.include_router(quiz.router)
+app.include_router(leaderboard.router)
+app.include_router(invites.router)
 
 @app.get("/")
 async def root():
